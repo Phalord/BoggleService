@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BoggleModel
 {
-    class Lobby
+    public class Lobby
     {
         public string Code { get; private set; }
 
