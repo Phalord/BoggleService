@@ -17,5 +17,7 @@ namespace BoggleModel
         public string GameMode { get; set; }
 
         public string Language { get; set; }
+
+        public Board MatchBoard { get; set; }
     }
 }

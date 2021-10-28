@@ -10,7 +10,7 @@ namespace BoggleModel
             Dices = GenerateDices(matchLanguage);
         }
 
-        public virtual Dice[] Dices { get; private set; }
+        public Dice[] Dices { get; private set; }
 
         private Dice[] GenerateDices(string matchLanguage)
         {

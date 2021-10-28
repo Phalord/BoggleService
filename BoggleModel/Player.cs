@@ -13,5 +13,11 @@ namespace BoggleModel
         public string FriendCode { get; private set; }
         
         public string Nationality { get; set; }
+
+        public string Status { get; set; }
+
+        public virtual UserAccount Account { get; set; }
+
+        public virtual PerformanceRecord Performance { get; set; }
     }
 }

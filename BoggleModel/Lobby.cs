@@ -13,5 +13,11 @@ namespace BoggleModel
         public string Size { get; set; }
 
         public string Privacy { get; set; }
+
+        public List<Message> MessageHistory { get; set; }
+
+        public List<Player> Players { get; set; }
+
+        public Match GameMatch { get; set; }
     }
 }
