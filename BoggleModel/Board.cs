@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Resources;
 
 namespace BoggleModel
@@ -28,6 +30,19 @@ namespace BoggleModel
 
             return dices;
         }
+
+        public void ShakeDice()
+        {
+            // TODO Implementar el acomodo de los dados
+            throw new NotImplementedException();
+        }
+
+        public bool ValidateWord(string word)
+        {
+            // TODO Implementar validación de la palabra
+            throw new NotImplementedException();
+        }
+
     }
 
     public partial class Dice

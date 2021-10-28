@@ -8,6 +8,19 @@ namespace BoggleModel
 {
     public class Player
     {
+        private const string Offline = "Offline";
+        private const string Online = "Online";
+        private const string InLobby = "In Lobby";
+        private const string InGame = "In Game";
+
+        public Player(string nickname, string friendCode)
+        {
+            Nickname = nickname;
+            Nationality = string.Empty;
+            FriendCode = friendCode;
+            Status = Offline;
+        }
+
         public string Nickname { get; set; }
 
         public string FriendCode { get; private set; }
