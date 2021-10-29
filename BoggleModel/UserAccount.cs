@@ -8,7 +8,8 @@ namespace BoggleModel
 {
     public class UserAccount
     {
-        public UserAccount(string username, string email, string password, string friendCode)
+        public UserAccount(string username,
+            string email, string password, string friendCode)
         {
             UserName = username;
             Email = email;

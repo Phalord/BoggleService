@@ -25,7 +25,8 @@ namespace BoggleModel
             for (int index = 0; index < dices.Length; index++)
             {
                 string resource = "dice" + index;
-                dices[index] = new Dice(resourceManager.GetString(resource, cultureInfo));
+                dices[index] = new Dice(resourceManager
+                    .GetString(resource, cultureInfo));
             }
 
             return dices;
