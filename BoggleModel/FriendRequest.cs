@@ -11,6 +11,8 @@
             IsAccepted = Pendant;
         }
 
+        public int ID { get; set; }
+
         public string IsAccepted { get; private set; }
 
         public void AcceptRequest()

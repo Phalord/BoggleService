@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +20,7 @@ namespace BoggleModel
             HighestScore = 0;
             TotalScore = 0;
         }
+        public int ID { get; set; }
 
         public int WordsFound { get; private set; }
 
@@ -33,6 +36,9 @@ namespace BoggleModel
 
         public int TotalScore { get; private set; }
 
+        [Key, ForeignKey("PlayerPerformance")]
+        public string Username { get; set; }
+        
         public virtual Player PlayerPerformance { get; set; }
 
         public void IncreaseWordsFound(int wordsFound)

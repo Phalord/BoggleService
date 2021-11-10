@@ -17,7 +17,7 @@ namespace BoggleModel
         private Dice[] GenerateDices(string matchLanguage)
         {
             ResourceManager resourceManager =
-                new ResourceManager("BoardDices", typeof(Board).Assembly);
+                new ResourceManager("Localization", typeof(Board).Assembly);
             CultureInfo cultureInfo = new CultureInfo(matchLanguage);
 
             Dice[] dices = new Dice[16];

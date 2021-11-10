@@ -7,20 +7,30 @@ using System.Threading.Tasks;
 
 namespace BoggleService.Contracts
 {
-    [ServiceContract(CallbackContract = typeof(IUserManagerCallback), SessionMode = SessionMode.Required)]
+    [ServiceContract(CallbackContract = typeof(IUserManagerCallback),
+        SessionMode = SessionMode.Required)]
     public interface IUserManagerContract
     {
         [OperationContract(IsOneWay = true)]
-        void LogIn(string username, string password);
+        void LogIn(string userName, string password);
 
         [OperationContract(IsOneWay = true)]
-        void CreateAccount(string username, string email, string password);
+        void CreateAccount(string userName, string email, string password);
+
+        [OperationContract(IsOneWay = true)]
+        void ValidateEmail(string validationCode, string email);
     }
 
     [ServiceContract]
     public interface IUserManagerCallback
     {
         [OperationContract]
-        void GrantAccess(bool access);
+        void GrantAccess(string accessStatus);
+
+        [OperationContract]
+        void AskForEmailValidation(string accountCreationStatus, string userEmail);
+
+        [OperationContract]
+        void GrantValidation(string validationStatus);
     }
 }
