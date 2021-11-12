@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.Serialization;
 
 namespace BoggleModel
 {
+    [DataContract]
     public class Match
     {
         private const string Classic = "Classic";
@@ -20,16 +17,22 @@ namespace BoggleModel
             MatchBoard = new Board(language);
         }
 
+        [DataMember]
         public int Rounds { get; set; }
 
+        [DataMember]
         public int WinningScore { get; set; }
 
+        [DataMember]
         public int SecondsPerRound { get; set; }
 
+        [DataMember]
         public string GameMode { get; set; }
 
+        [DataMember]
         public string Language { get; set; }
 
+        [DataMember]
         public Board MatchBoard { get; set; }
     }
 }

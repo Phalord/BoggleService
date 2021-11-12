@@ -1,5 +1,8 @@
-﻿namespace BoggleModel
+﻿using System.Runtime.Serialization;
+
+namespace BoggleModel
 {
+    [DataContract(IsReference = true)]
     public class FriendRequest
     {
         private const string Pendant = "Pendant";
@@ -11,9 +14,17 @@
             IsAccepted = Pendant;
         }
 
+        [DataMember]
         public int ID { get; set; }
 
+        [DataMember]
         public string IsAccepted { get; private set; }
+
+        [DataMember]
+        public virtual Player Sender { get; set; }
+
+        [DataMember]
+        public virtual Player Receiver { get; set; }
 
         public void AcceptRequest()
         {
@@ -24,8 +35,5 @@
         {
             IsAccepted = Declined;
         }
-
-        public virtual Player Sender { get; set; }
-        public virtual Player Receiver { get; set; }
     }
 }

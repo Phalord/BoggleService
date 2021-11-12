@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BoggleModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
@@ -25,12 +26,12 @@ namespace BoggleService.Contracts
     public interface IUserManagerCallback
     {
         [OperationContract]
-        void GrantAccess(string accessStatus);
+        void GrantAccess(string accessStatus, UserAccount userAccount);
 
         [OperationContract]
         void AskForEmailValidation(string accountCreationStatus, string userEmail);
 
         [OperationContract]
-        void GrantValidation(string validationStatus);
+        void GrantValidation(string validationStatus, UserAccount userAccount);
     }
 }

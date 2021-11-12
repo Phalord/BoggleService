@@ -96,25 +96,29 @@ namespace BoggleService.Services
                 accessStatus = nonExistentUser;
             }
 
-            Callback.GrantAccess(accessStatus);
+            Callback.GrantAccess(accessStatus, userAccount);
         }
 
         public void ValidateEmail(string validationCode, string email)
         {
+            UserAccount userAccount = null;
             string validationStatus;
-
+            
             if (usersToValidate.ContainsKey(email))
             {
-                if (usersToValidate["email"].Equals(validationCode))
+                if (usersToValidate[email].Equals(validationCode))
                 {
                     using (var database = new BoggleContext())
                     {
                         var query = database.UserAccounts
-                                .FirstOrDefault(account => account.Email == email);
+                            .Include("PlayerAccount")
+                            .Where(account => account.Email == email)
+                            .FirstOrDefault();
                         if (query != null)
                         {
                             query.Verify();
                             database.SaveChanges();
+                            userAccount = query;
                         }
                     }
                     validationStatus = emailValidated;
@@ -128,7 +132,7 @@ namespace BoggleService.Services
                 validationStatus = emailNotFound;
             }
 
-            Callback.GrantValidation(validationStatus);
+            Callback.GrantValidation(validationStatus, userAccount);
         }
 
 
@@ -166,7 +170,13 @@ namespace BoggleService.Services
                 .Repeat(characters, emailValidationCodeSize)
                 .Select(characters => characters[random.Next(characters.Length)]).ToArray());
 
-            usersToValidate.Add(newUser.Email, emailValidationCode);
+            if (usersToValidate.ContainsKey(newUser.Email))
+            {
+                usersToValidate[newUser.Email] = emailValidationCode;
+            } else
+            {
+                usersToValidate.Add(newUser.Email, emailValidationCode);
+            }
             SendEmailValidationCode(newUser.Email, emailValidationCode);
         }
 

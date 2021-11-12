@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
 
 namespace BoggleModel
 {
+ 
+    [DataContract(IsReference = true)]
     public class UserAccount
     {
         public UserAccount(string username,
@@ -28,15 +26,20 @@ namespace BoggleModel
             PlayerAccount = new Player();
         }
 
+        [DataMember]
         [Key]
         public string UserName { get; set; }
 
+        [DataMember]
         public string Email { get; set; }
 
+        [DataMember]
         public string Password { get; set; }
 
+        [DataMember]
         public bool IsVerified { get; set; }
 
+        [DataMember]
         public virtual Player PlayerAccount { get; set; }
 
         public void Verify()

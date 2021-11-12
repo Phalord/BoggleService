@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Globalization;
 using System.Resources;
 
 namespace BoggleModel
 {
+    [DataContract]
     public partial class Board
     {
         public Board(string matchLanguage)
@@ -12,6 +13,7 @@ namespace BoggleModel
             Dices = GenerateDices(matchLanguage);
         }
 
+        [DataMember]
         public Dice[] Dices { get; private set; }
 
         private Dice[] GenerateDices(string matchLanguage)
@@ -46,6 +48,7 @@ namespace BoggleModel
 
     }
 
+    [DataContract]
     public partial class Dice
     {
 
@@ -54,6 +57,7 @@ namespace BoggleModel
             Faces = BuildFacesArray(faces);
         }
 
+        [DataMember]
         public string[] Faces { get; set; }
 
         private string[] BuildFacesArray(string faces)

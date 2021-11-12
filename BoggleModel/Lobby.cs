@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace BoggleModel
 {
@@ -22,16 +19,22 @@ namespace BoggleModel
             GameMatch = new Match(language);
         }
 
+        [DataMember]
         public string Code { get; private set; }
 
+        [DataMember]
         public int Size { get; set; }
 
+        [DataMember]
         public string Privacy { get; set; }
 
+        [DataMember]
         public List<Message> MessageHistory { get; set; }
 
+        [DataMember]
         public List<Player> Players { get; set; }
 
+        [DataMember]
         public Match GameMatch { get; set; }
 
         public void ChangePrivacy()

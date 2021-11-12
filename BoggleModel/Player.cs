@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.Serialization;
 
 namespace BoggleModel
 {
+    [DataContract(IsReference = true)]
     public class Player
     {
         private const string Offline = "Offline";
@@ -36,21 +34,29 @@ namespace BoggleModel
             FriendRequests = new List<FriendRequest>();
         }
 
-        public string Nickname { get; set; }
-
-        public string FriendCode { get; private set; }
-        
-        public string Nationality { get; set; }
-
-        public string Status { get; set; }
-
+        [DataMember]
         [Key, ForeignKey("Account")]
         public string UserName { get; set; }
 
+        [DataMember]
+        public string Nickname { get; set; }
+
+        [DataMember]
+        public string FriendCode { get; private set; }
+
+        [DataMember]
+        public string Nationality { get; set; }
+
+        [DataMember]
+        public string Status { get; set; }
+
+        [DataMember]
         public virtual UserAccount Account { get; set; }
 
+        [DataMember]
         public virtual PerformanceRecord Performance { get; set; }
 
+        [DataMember]
         public virtual List<FriendRequest> FriendRequests { get; set; }
     }
 }
