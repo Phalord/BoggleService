@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BoggleModel.DataAccess.Entities;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -9,12 +10,12 @@ namespace BoggleModel
 {
     public class BoggleContext : DbContext
     {
-        public DbSet<UserAccount> UserAccounts { get; set; }
+        public DbSet<UserAccountEntity> UserAccounts { get; set; }
         
-        public DbSet<Player> Players { get; set; }
+        public DbSet<PlayerEntity> Players { get; set; }
 
-        public DbSet<PerformanceRecord> PerformanceRecords { get; set; }
+        public DbSet<PerformanceRecordEntity> PerformanceRecords { get; set; }
 
-        public DbSet<FriendRequest> FriendRequests { get; set; }
+        public DbSet<FriendRequestEntity> FriendRequests { get; set; }
     }
 }

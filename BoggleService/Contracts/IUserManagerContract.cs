@@ -1,10 +1,6 @@
 ﻿using BoggleModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using BoggleModel.DataTransfer.Dtos;
 using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BoggleService.Contracts
 {
@@ -16,7 +12,7 @@ namespace BoggleService.Contracts
         void LogIn(string userName, string password);
 
         [OperationContract(IsOneWay = true)]
-        void CreateAccount(string userName, string email, string password);
+        void CreateAccount(AccountDTO accountDTO);
 
         [OperationContract(IsOneWay = true)]
         void ValidateEmail(string validationCode, string email);
@@ -26,12 +22,12 @@ namespace BoggleService.Contracts
     public interface IUserManagerCallback
     {
         [OperationContract]
-        void GrantAccess(string accessStatus, UserAccount userAccount);
+        void GrantAccess(string accessStatus, PlayerInfoDTO playerInfoDTO);
 
         [OperationContract]
         void AskForEmailValidation(string accountCreationStatus, string userEmail);
 
         [OperationContract]
-        void GrantValidation(string validationStatus, UserAccount userAccount);
+        void GrantValidation(string validationStatus, PlayerInfoDTO playerInfoDTO);
     }
 }

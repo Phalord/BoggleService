@@ -1,4 +1,7 @@
 ﻿using BoggleModel;
+using BoggleModel.DataAccess;
+using BoggleModel.DataTransfer;
+using BoggleModel.DataTransfer.Dtos;
 using BoggleService.Contracts;
 using BoggleService.Utils;
 using System;
@@ -32,34 +35,30 @@ namespace BoggleService.Services
         #endregion
 
 
-        public void CreateAccount(
-            string userName, string email, string password)
+        public void CreateAccount(AccountDTO accountDTO)
         {
             string accountCreationStatus;
 
-            if (IsUserNameRegistered(userName))
+            if (IsUserNameRegistered(accountDTO.UserName))
             {
                 accountCreationStatus = usernameRegistered;
                 Callback.AskForEmailValidation(accountCreationStatus, string.Empty);
             }
-            else if (IsEmailRegistered(email))
+            else if (IsEmailRegistered(accountDTO.Email))
             {
                 accountCreationStatus = emailRegistered;
                 Callback.AskForEmailValidation(accountCreationStatus, string.Empty);
             } else
             {
-                UserAccount newUser = new UserAccount(userName,
-                email, password, GenerateFriendCode());
+                UserAccount newUser = ManualMapper
+                    .CreateAccount(accountDTO, GenerateFriendCode);
 
-                using (var database = new BoggleContext())
-                {
-                    database.UserAccounts.Add(newUser);
-                    database.SaveChanges();
-                    accountCreationStatus = accountCreated;
-                    GenerateVerificationCode(newUser);
-                    Console.WriteLine("User {0} created", newUser.UserName);
-                    Callback.AskForEmailValidation(accountCreationStatus, newUser.Email);
-                }
+                Authentication.CreateAccount(newUser);
+
+                accountCreationStatus = accountCreated;
+                GenerateVerificationCode(newUser);
+                Console.WriteLine("User {0} created", newUser.UserName);
+                Callback.AskForEmailValidation(accountCreationStatus, newUser.Email);
             }
 
         }
@@ -69,11 +68,15 @@ namespace BoggleService.Services
             Console.WriteLine("Attempting log in as {0}", userName);
 
             UserAccount userAccount = null;
-            GetUserAccount(userName, ref userAccount);
+            Authentication.GetUserAccount(userName, ref userAccount);
+            PlayerInfoDTO playerInfoDTO = null;
 
             string accessStatus;
             if (userAccount != null)
             {
+                playerInfoDTO = ManualMapper
+                    .CreatePlayerInfoDTO(userAccount.PlayerAccount);
+
                 if (userAccount.IsVerified)
                 {
                     if (userAccount.Password.Equals(password))
@@ -96,31 +99,22 @@ namespace BoggleService.Services
                 accessStatus = nonExistentUser;
             }
 
-            Callback.GrantAccess(accessStatus, userAccount);
+            Callback.GrantAccess(accessStatus, playerInfoDTO);
         }
 
         public void ValidateEmail(string validationCode, string email)
         {
-            UserAccount userAccount = null;
+            PlayerInfoDTO playerInfoDTO = null;
             string validationStatus;
             
             if (usersToValidate.ContainsKey(email))
             {
                 if (usersToValidate[email].Equals(validationCode))
                 {
-                    using (var database = new BoggleContext())
-                    {
-                        var query = database.UserAccounts
-                            .Include("PlayerAccount")
-                            .Where(account => account.Email == email)
-                            .FirstOrDefault();
-                        if (query != null)
-                        {
-                            query.Verify();
-                            database.SaveChanges();
-                            userAccount = query;
-                        }
-                    }
+                    Authentication.ValidateAccountEmail(email);
+                    UserAccount userAccount = null;
+                    Authentication.GetUserAccountByEmail(email, ref userAccount);
+                    ManualMapper.CreatePlayerInfoDTO(userAccount.PlayerAccount);
                     validationStatus = emailValidated;
                     Console.WriteLine("Email {0} verified.", email);
                 } else
@@ -132,7 +126,7 @@ namespace BoggleService.Services
                 validationStatus = emailNotFound;
             }
 
-            Callback.GrantValidation(validationStatus, userAccount);
+            Callback.GrantValidation(validationStatus, playerInfoDTO);
         }
 
 
@@ -141,7 +135,7 @@ namespace BoggleService.Services
         private bool IsUserNameRegistered(string userName)
         {
             UserAccount userAccount = null;
-            GetUserAccount(userName, ref userAccount);
+            Authentication.GetUserAccount(userName, ref userAccount);
 
             if (userAccount == null)
             {
@@ -154,7 +148,7 @@ namespace BoggleService.Services
         private bool IsEmailRegistered(string email)
         {
             UserAccount userAccount = null;
-            GetUserAccountByEmail(email, ref userAccount);
+            Authentication.GetUserAccountByEmail(email, ref userAccount);
 
             if (userAccount == null)
             {
@@ -180,7 +174,8 @@ namespace BoggleService.Services
             SendEmailValidationCode(newUser.Email, emailValidationCode);
         }
 
-        private void SendEmailValidationCode(string userEmail, string emailValidationCode)
+        private void SendEmailValidationCode(
+            string userEmail, string emailValidationCode)
         {
             EmailSender emailSender = new EmailSender(userEmail);
             string body = "Your email verification code is:\n" + emailValidationCode;
@@ -214,47 +209,19 @@ namespace BoggleService.Services
             return true;
         }
 
-        private void GetUserAccount(string userName, ref UserAccount userAccount)
+        private void GetUserAccountByFriendCode(
+            string friendCode, ref UserAccount userAccount)
         {
             using (var database = new BoggleContext())
             {
-                var query = database.UserAccounts
-                    .FirstOrDefault(account => account.UserName == userName);
-                if (query != null)
-                {
-                    userAccount = new UserAccount(
-                        query.UserName, query.Email,
-                        query.Password, query.PlayerAccount.FriendCode);
-                }
-            }
-        }
+                var query = database.UserAccounts.FirstOrDefault(
+                    account => account.Player.FriendCode == friendCode);
 
-        private void GetUserAccountByEmail(string email, ref UserAccount userAccount)
-        {
-            using (var database = new BoggleContext())
-            {
-                var query = database.UserAccounts
-                    .FirstOrDefault(account => account.Email == email);
                 if (query != null)
                 {
                     userAccount = new UserAccount(
                         query.UserName, query.Email,
-                        query.Password, query.PlayerAccount.FriendCode);
-                }
-            }
-        }
-
-        private void GetUserAccountByFriendCode(string friendCode, ref UserAccount userAccount)
-        {
-            using (var database = new BoggleContext())
-            {
-                var query = database.UserAccounts
-                    .FirstOrDefault(account => account.PlayerAccount.FriendCode == friendCode);
-                if (query != null)
-                {
-                    userAccount = new UserAccount(
-                        query.UserName, query.Email,
-                        query.Password, query.PlayerAccount.FriendCode);
+                        query.Password, query.Player.FriendCode);
                 }
             }
         }

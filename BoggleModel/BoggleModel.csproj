@@ -54,6 +54,14 @@
   <ItemGroup>
     <Compile Include="Board.cs" />
     <Compile Include="BoggleContext.cs" />
+    <Compile Include="DataAccess\Authentication.cs" />
+    <Compile Include="DataAccess\Entities\FriendRequestEntity.cs" />
+    <Compile Include="DataAccess\Entities\PerformanceRecordEntity.cs" />
+    <Compile Include="DataAccess\Entities\PlayerEntity.cs" />
+    <Compile Include="DataAccess\Entities\UserAccountEntity.cs" />
+    <Compile Include="DataTransfer\Dtos\AccountDTO.cs" />
+    <Compile Include="DataTransfer\Dtos\PlayerInfoDTO.cs" />
+    <Compile Include="DataTransfer\ManualMapper.cs" />
     <Compile Include="FriendRequest.cs" />
     <Compile Include="Lobby.cs" />
     <Compile Include="Match.cs" />
@@ -77,6 +85,9 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Localization.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="BusinessModel\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

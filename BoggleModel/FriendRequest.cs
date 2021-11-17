@@ -2,7 +2,6 @@
 
 namespace BoggleModel
 {
-    [DataContract(IsReference = true)]
     public class FriendRequest
     {
         private const string Pendant = "Pendant";
@@ -14,17 +13,11 @@ namespace BoggleModel
             IsAccepted = Pendant;
         }
 
-        [DataMember]
-        public int ID { get; set; }
-
-        [DataMember]
         public string IsAccepted { get; private set; }
 
-        [DataMember]
-        public virtual Player Sender { get; set; }
+        public Player Sender { get; set; }
 
-        [DataMember]
-        public virtual Player Receiver { get; set; }
+        public Player Receiver { get; set; }
 
         public void AcceptRequest()
         {
