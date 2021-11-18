@@ -1,5 +1,4 @@
-﻿using System.Runtime.Serialization;
-
+﻿
 namespace BoggleModel
 {
     public class FriendRequest

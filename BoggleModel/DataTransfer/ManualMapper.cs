@@ -7,7 +7,7 @@ namespace BoggleModel.DataTransfer
     {
         public static PlayerInfoDTO CreatePlayerInfoDTO(Player player)
         {
-            PlayerInfoDTO result = new PlayerInfoDTO
+            PlayerInfoDTO playerDTO = new PlayerInfoDTO
             {
                 UserName = player.Account.UserName,
                 Nickname = player.Nickname,
@@ -17,7 +17,19 @@ namespace BoggleModel.DataTransfer
                 IsVerified = player.Account.IsVerified
             };
 
-            return result;
+            return playerDTO;
+        }
+
+        public static AccountDTO CreateAccountDTO(UserAccount userAccount)
+        {
+            AccountDTO accountDTO = new AccountDTO
+            {
+                UserName = userAccount.UserName,
+                Password = userAccount.Password,
+                Email = userAccount.Email
+            };
+
+            return accountDTO;
         }
 
         public static UserAccount CreateAccount(

@@ -22,12 +22,12 @@ namespace BoggleService.Contracts
     public interface IUserManagerCallback
     {
         [OperationContract]
-        void GrantAccess(string accessStatus, PlayerInfoDTO playerInfoDTO);
+        void GrantAccess(string accessStatus, AccountDTO playerInfoDTO);
 
         [OperationContract]
         void AskForEmailValidation(string accountCreationStatus, string userEmail);
 
         [OperationContract]
-        void GrantValidation(string validationStatus, PlayerInfoDTO playerInfoDTO);
+        void GrantValidation(string validationStatus, AccountDTO playerInfoDTO);
     }
 }

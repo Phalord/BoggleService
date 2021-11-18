@@ -6,14 +6,14 @@ namespace BoggleModel
  
     public class UserAccount
     {
-        public UserAccount(string username,
+        public UserAccount(string userName,
             string email, string password, string friendCode)
         {
-            UserName = username;
+            UserName = userName;
             Email = email;
             Password = password;
             IsVerified = false;
-            PlayerAccount = new Player(username, friendCode, this);
+            PlayerAccount = new Player(userName, friendCode, this);
         }
 
         public UserAccount()

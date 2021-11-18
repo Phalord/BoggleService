@@ -28,24 +28,9 @@ namespace BoggleModel.DataAccess
 
         public static void CreateAccount(UserAccount newUser)
         {
-            UserAccountEntity accountEntity = new UserAccountEntity()
-            {
-                UserName = newUser.UserName,
-                Email = newUser.Email,
-                Password = newUser.Password,
-                IsVerified = newUser.IsVerified
-            };
-
-            accountEntity.Player = new PlayerEntity()
-            {
-                Nickname = accountEntity.UserName,
-                Nationality = string.Empty,
-                FriendCode = accountEntity.Player.FriendCode,
-                Status = newUser.PlayerAccount.Status,
-                Account = accountEntity,
-                PerformanceRecord = new PerformanceRecordEntity(),
-                FriendRequests = new List<FriendRequestEntity>()
-            };
+            UserAccountEntity accountEntity = new UserAccountEntity(
+                newUser.Email, newUser.Email,
+                newUser.Password, newUser.PlayerAccount.FriendCode);
 
             using (var database = new BoggleContext())
             {
@@ -54,7 +39,8 @@ namespace BoggleModel.DataAccess
             }
         }
 
-        public static void GetUserAccountByEmail(string email, ref UserAccount userAccount)
+        public static void GetUserAccountByEmail(
+            string email, ref UserAccount userAccount)
         {
             using (var database = new BoggleContext())
             {
@@ -73,19 +59,16 @@ namespace BoggleModel.DataAccess
         {
             using (var database = new BoggleContext())
             {
-                var query = database.UserAccounts
-                    .Where(account => account.Email == email)
+                var query = database.Players
+                    .Where(player => player.Account.Email.Equals(email))
                     .FirstOrDefault();
                 
                 if (query != null)
                 {
-                    query.IsVerified = true;
+                    query.Account.IsVerified = true;
                     database.SaveChanges();
                 }
             }
-
-
-            throw new NotImplementedException();
         }
     }
 }

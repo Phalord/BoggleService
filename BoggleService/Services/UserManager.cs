@@ -69,13 +69,13 @@ namespace BoggleService.Services
 
             UserAccount userAccount = null;
             Authentication.GetUserAccount(userName, ref userAccount);
-            PlayerInfoDTO playerInfoDTO = null;
+            AccountDTO accountDTO = null;
 
             string accessStatus;
             if (userAccount != null)
             {
-                playerInfoDTO = ManualMapper
-                    .CreatePlayerInfoDTO(userAccount.PlayerAccount);
+                accountDTO = ManualMapper
+                    .CreateAccountDTO(userAccount);
 
                 if (userAccount.IsVerified)
                 {
@@ -99,12 +99,12 @@ namespace BoggleService.Services
                 accessStatus = nonExistentUser;
             }
 
-            Callback.GrantAccess(accessStatus, playerInfoDTO);
+            Callback.GrantAccess(accessStatus, accountDTO);
         }
 
         public void ValidateEmail(string validationCode, string email)
         {
-            PlayerInfoDTO playerInfoDTO = null;
+            AccountDTO accountDTO = null;
             string validationStatus;
             
             if (usersToValidate.ContainsKey(email))
@@ -114,7 +114,7 @@ namespace BoggleService.Services
                     Authentication.ValidateAccountEmail(email);
                     UserAccount userAccount = null;
                     Authentication.GetUserAccountByEmail(email, ref userAccount);
-                    ManualMapper.CreatePlayerInfoDTO(userAccount.PlayerAccount);
+                    accountDTO = ManualMapper.CreateAccountDTO(userAccount);
                     validationStatus = emailValidated;
                     Console.WriteLine("Email {0} verified.", email);
                 } else
@@ -126,7 +126,7 @@ namespace BoggleService.Services
                 validationStatus = emailNotFound;
             }
 
-            Callback.GrantValidation(validationStatus, playerInfoDTO);
+            Callback.GrantValidation(validationStatus, accountDTO);
         }
 
 

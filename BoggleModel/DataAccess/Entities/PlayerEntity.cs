@@ -17,6 +17,18 @@ namespace BoggleModel.DataAccess.Entities
             FriendRequests = new List<FriendRequestEntity>();
         }
 
+        public PlayerEntity(string userName,
+            string friendCode, UserAccountEntity userAccountEntity)
+        {
+            UserName = userName;
+            Nationality = string.Empty;
+            FriendCode = friendCode;
+            Status = "Offline";
+            Account = userAccountEntity;
+            PerformanceRecord = new PerformanceRecordEntity();
+            FriendRequests = new List<FriendRequestEntity>();
+        }
+
         [Key, ForeignKey(nameof(Account))]
         public string UserName { get; set; }
 
@@ -28,10 +40,10 @@ namespace BoggleModel.DataAccess.Entities
 
         public string Status { get; set; }
 
-        public UserAccountEntity Account { get; set; }
+        public virtual UserAccountEntity Account { get; set; }
 
-        public PerformanceRecordEntity PerformanceRecord { get; set; }
+        public virtual PerformanceRecordEntity PerformanceRecord { get; set; }
 
-        public List<FriendRequestEntity> FriendRequests { get; set; }
+        public virtual List<FriendRequestEntity> FriendRequests { get; set; }
     }
 }

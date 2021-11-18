@@ -18,7 +18,8 @@ namespace BoggleModel
             Performance = new PerformanceRecord();
             FriendRequests = new List<FriendRequest>();
         }
-        public Player(string nickname, string friendCode, UserAccount userAccount)
+        public Player(string nickname,
+            string friendCode, UserAccount userAccount)
         {
             Nickname = nickname;
             Nationality = string.Empty;

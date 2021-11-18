@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BoggleModel.DataAccess.Entities
 {
@@ -17,6 +12,16 @@ namespace BoggleModel.DataAccess.Entities
             Email = string.Empty;
             Password = string.Empty;
             IsVerified = false;
+        }
+
+        public UserAccountEntity(string userName,
+            string email, string password, string friendCode)
+        {
+            UserName = userName;
+            Email = email;
+            Password = password;
+            IsVerified = false;
+            Player = new PlayerEntity(userName, friendCode, this);
         }
 
         [Key]
