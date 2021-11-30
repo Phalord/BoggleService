@@ -1,35 +1,39 @@
 ﻿using BoggleModel.DataAccess.Entities;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BoggleModel.DataAccess
 {
     public abstract class Authentication
     {
-        public static void GetUserAccount(
-            string userName, ref UserAccount userAccount)
+        public static UserAccount GetUserAccount(
+            string userName, UserAccount userAccount)
         {
             using (var database = new BoggleContext())
             {
-                var query = database.UserAccounts.FirstOrDefault(
-                    account => account.UserName.Equals(userName));
+                var query = database.UserAccounts
+                    .Where(account => account.UserName.Equals(userName))
+                    .FirstOrDefault();
 
                 if (query != null)
                 {
                     userAccount = new UserAccount(
                         query.UserName, query.Email,
-                        string.Empty, query.Player.FriendCode);
+                        query.Password, query.Player.FriendCode)
+                    {
+                        IsVerified = query.IsVerified
+                    };
+
+                    return userAccount;
                 }
             }
+
+            return userAccount;
         }
 
         public static void CreateAccount(UserAccount newUser)
         {
             UserAccountEntity accountEntity = new UserAccountEntity(
-                newUser.Email, newUser.Email,
+                newUser.UserName, newUser.Email,
                 newUser.Password, newUser.PlayerAccount.FriendCode);
 
             using (var database = new BoggleContext())
@@ -39,8 +43,8 @@ namespace BoggleModel.DataAccess
             }
         }
 
-        public static void GetUserAccountByEmail(
-            string email, ref UserAccount userAccount)
+        public static UserAccount GetUserAccountByEmail(
+            string email, UserAccount userAccount)
         {
             using (var database = new BoggleContext())
             {
@@ -53,6 +57,8 @@ namespace BoggleModel.DataAccess
                         query.Password, query.Player.FriendCode);
                 }
             }
+
+            return userAccount;
         }
 
         public static void ValidateAccountEmail(string email)
@@ -69,6 +75,24 @@ namespace BoggleModel.DataAccess
                     database.SaveChanges();
                 }
             }
+        }
+
+        public static UserAccount GetUserAccountByFriendCode(string friendCode, UserAccount userAccount)
+        {
+            using (var database = new BoggleContext())
+            {
+                var query = database.UserAccounts.FirstOrDefault(
+                    account => account.Player.FriendCode == friendCode);
+
+                if (query != null)
+                {
+                    userAccount = new UserAccount(
+                        query.UserName, query.Email,
+                        query.Password, query.Player.FriendCode);
+                }
+            }
+
+            return userAccount;
         }
     }
 }

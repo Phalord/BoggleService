@@ -11,9 +11,10 @@ using System.ServiceModel;
 
 namespace BoggleService.Services
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, 
+    [ServiceBehavior(
+        InstanceContextMode = InstanceContextMode.Single, 
         ConcurrencyMode = ConcurrencyMode.Multiple)]
-    public class UserManager : IUserManagerContract
+    public partial class BoggleServices : IBoggleServiceContracts
     {
         private static readonly Random random = new Random();
         private readonly Dictionary<string, string> usersToValidate = new Dictionary<string, string>();
@@ -68,20 +69,19 @@ namespace BoggleService.Services
             Console.WriteLine("Attempting log in as {0}", userName);
 
             UserAccount userAccount = null;
-            Authentication.GetUserAccount(userName, ref userAccount);
+            userAccount = Authentication.GetUserAccount(userName, userAccount);
             AccountDTO accountDTO = null;
 
             string accessStatus;
             if (userAccount != null)
             {
-                accountDTO = ManualMapper
-                    .CreateAccountDTO(userAccount);
-
                 if (userAccount.IsVerified)
                 {
-                    if (userAccount.Password.Equals(password))
+                    if (BCrypt.Net.BCrypt.Verify(password, userAccount.Password))
                     {
                         accessStatus = accessGranted;
+                        accountDTO = ManualMapper
+                            .CreateAccountDTO(userAccount);
                     }
                     else
                     {
@@ -113,7 +113,7 @@ namespace BoggleService.Services
                 {
                     Authentication.ValidateAccountEmail(email);
                     UserAccount userAccount = null;
-                    Authentication.GetUserAccountByEmail(email, ref userAccount);
+                    userAccount = Authentication.GetUserAccountByEmail(email, userAccount);
                     accountDTO = ManualMapper.CreateAccountDTO(userAccount);
                     validationStatus = emailValidated;
                     Console.WriteLine("Email {0} verified.", email);
@@ -135,8 +135,8 @@ namespace BoggleService.Services
         private bool IsUserNameRegistered(string userName)
         {
             UserAccount userAccount = null;
-            Authentication.GetUserAccount(userName, ref userAccount);
-
+            userAccount = Authentication.GetUserAccount(userName, userAccount);
+            
             if (userAccount == null)
             {
                 return false;
@@ -148,7 +148,7 @@ namespace BoggleService.Services
         private bool IsEmailRegistered(string email)
         {
             UserAccount userAccount = null;
-            Authentication.GetUserAccountByEmail(email, ref userAccount);
+            userAccount = Authentication.GetUserAccountByEmail(email, userAccount);
 
             if (userAccount == null)
             {
@@ -199,7 +199,7 @@ namespace BoggleService.Services
         private bool IsFriendCodeInUse(string friendCode)
         {
             UserAccount userAccount = null;
-            GetUserAccountByFriendCode(friendCode, ref userAccount);
+            userAccount = Authentication.GetUserAccountByFriendCode(friendCode, userAccount);
 
             if (userAccount == null)
             {
@@ -209,32 +209,15 @@ namespace BoggleService.Services
             return true;
         }
 
-        private void GetUserAccountByFriendCode(
-            string friendCode, ref UserAccount userAccount)
-        {
-            using (var database = new BoggleContext())
-            {
-                var query = database.UserAccounts.FirstOrDefault(
-                    account => account.Player.FriendCode == friendCode);
-
-                if (query != null)
-                {
-                    userAccount = new UserAccount(
-                        query.UserName, query.Email,
-                        query.Password, query.Player.FriendCode);
-                }
-            }
-        }
-
         #endregion
 
 
-        IUserManagerCallback Callback
+        IBoggleServicesCallback Callback
         {
             get
             {
                 return OperationContext.Current
-                    .GetCallbackChannel<IUserManagerCallback>();
+                    .GetCallbackChannel<IBoggleServicesCallback>();
             }
         }
     }

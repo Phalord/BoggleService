@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace BoggleServiceHost
 {
-    class BoggleHost
+    internal class BoggleHost
     {
         static void Main(string[] args)
         {
-            using (ServiceHost host = new ServiceHost(typeof(UserManager)))
+            using (ServiceHost host = new ServiceHost(typeof(BoggleServices)))
             {
                 host.Open();
                 Console.WriteLine("Server Started...");

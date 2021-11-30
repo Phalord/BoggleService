@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.Globalization;
-using System.Resources;
+using BoggleModel.Properties;
 
 namespace BoggleModel
 {
@@ -18,16 +18,14 @@ namespace BoggleModel
 
         private Dice[] GenerateDices(string matchLanguage)
         {
-            ResourceManager resourceManager =
-                new ResourceManager("Localization", typeof(Board).Assembly);
             CultureInfo cultureInfo = new CultureInfo(matchLanguage);
 
             Dice[] dices = new Dice[16];
 
             for (int index = 0; index < dices.Length; index++)
             {
-                string resource = "dice" + index;
-                dices[index] = new Dice(resourceManager
+                string resource = string.Format("dice{0}", index + 1);
+                dices[index] = new Dice(Localization.ResourceManager
                     .GetString(resource, cultureInfo));
             }
 

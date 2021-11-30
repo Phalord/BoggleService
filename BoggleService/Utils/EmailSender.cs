@@ -12,7 +12,6 @@ namespace BoggleService.Utils
     internal class EmailSender
     {
         private readonly SmtpClient client;
-        private MailMessage mail;
 
         private readonly string host = ConfigurationManager.AppSettings["SmtpServer"];
         private readonly int port = Convert.ToInt32(ConfigurationManager.AppSettings["Port"]);
@@ -28,7 +27,7 @@ namespace BoggleService.Utils
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
 
-                Credentials = new NetworkCredential()
+                Credentials = new NetworkCredential
                 {
                     UserName = addressFrom,
                     Password = ConfigurationManager.AppSettings["PasswordFrom"]
@@ -38,7 +37,7 @@ namespace BoggleService.Utils
 
         public void SendEmail(string subject, string body)
         {
-            mail = new MailMessage(addressFrom, addressTo, subject, body)
+            MailMessage mail = new MailMessage(addressFrom, addressTo, subject, body)
             {
                 IsBodyHtml = false,
                 SubjectEncoding = Encoding.UTF8,

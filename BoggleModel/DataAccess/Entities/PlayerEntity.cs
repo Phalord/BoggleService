@@ -13,7 +13,6 @@ namespace BoggleModel.DataAccess.Entities
             Nickname = string.Empty;
             FriendCode = string.Empty;
             Nationality = string.Empty;
-            Status = string.Empty;
             FriendRequests = new List<FriendRequestEntity>();
         }
 
@@ -21,9 +20,9 @@ namespace BoggleModel.DataAccess.Entities
             string friendCode, UserAccountEntity userAccountEntity)
         {
             UserName = userName;
+            Nickname = userName;
             Nationality = string.Empty;
             FriendCode = friendCode;
-            Status = "Offline";
             Account = userAccountEntity;
             PerformanceRecord = new PerformanceRecordEntity();
             FriendRequests = new List<FriendRequestEntity>();
@@ -37,8 +36,6 @@ namespace BoggleModel.DataAccess.Entities
         public string FriendCode { get; set; }
 
         public string Nationality { get; set; }
-
-        public string Status { get; set; }
 
         public virtual UserAccountEntity Account { get; set; }
 

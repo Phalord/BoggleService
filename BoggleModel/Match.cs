@@ -6,6 +6,8 @@ namespace BoggleModel
     public class Match
     {
         private const string Classic = "Classic";
+        private const string Arcade = "Arcade";
+        private const string Race = "Race";
 
         public Match(string language)
         {

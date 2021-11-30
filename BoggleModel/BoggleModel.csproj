@@ -59,7 +59,9 @@
     <Compile Include="DataAccess\Entities\PerformanceRecordEntity.cs" />
     <Compile Include="DataAccess\Entities\PlayerEntity.cs" />
     <Compile Include="DataAccess\Entities\UserAccountEntity.cs" />
+    <Compile Include="DataAccess\GameService.cs" />
     <Compile Include="DataTransfer\Dtos\AccountDTO.cs" />
+    <Compile Include="DataTransfer\Dtos\LobbySettingsDTO.cs" />
     <Compile Include="DataTransfer\Dtos\PlayerInfoDTO.cs" />
     <Compile Include="DataTransfer\ManualMapper.cs" />
     <Compile Include="FriendRequest.cs" />
@@ -86,9 +88,7 @@
       <LastGenOutput>Localization.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="BusinessModel\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

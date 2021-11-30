@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 
 namespace BoggleModel
 {
+    [DataContract]
     public class Lobby
     {
         private const string Public = "Public";
