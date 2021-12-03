@@ -9,12 +9,12 @@ namespace BoggleModel
         private const string Arcade = "Arcade";
         private const string Race = "Race";
 
-        public Match(string language)
+        public Match(string language, string gameMode)
         {
             Rounds = 3;
             WinningScore = 0;
             SecondsPerRound = 180;
-            GameMode = Classic;
+            GameMode = gameMode;
             Language = language;
             MatchBoard = new Board(language);
         }

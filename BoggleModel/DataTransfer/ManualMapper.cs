@@ -41,5 +41,18 @@ namespace BoggleModel.DataTransfer
 
             return userAccount;
         }
+
+        public static PublicLobbyPreviewDTO CreatePublicLobbyPreviewDTO(Lobby lobby)
+        {
+            PublicLobbyPreviewDTO publicLobbyPreviewDTO = new PublicLobbyPreviewDTO
+            {
+                LobbySize = lobby.Size,
+                PlayersInside = lobby.Players.Count,
+                GameMode = lobby.GameMatch.GameMode,
+                LobbyCode = lobby.Code
+            };
+
+            return publicLobbyPreviewDTO;
+        }
     }
 }

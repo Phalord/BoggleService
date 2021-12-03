@@ -1,5 +1,6 @@
 ﻿using BoggleModel;
 using BoggleModel.DataAccess;
+using BoggleModel.DataTransfer;
 using BoggleModel.DataTransfer.Dtos;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,13 @@ namespace BoggleService.Services
             Player creator = null;
             creator = GameService.GetPlayer(lobbySettings.CreatorUserName, creator);
             string lobbyCode = GenerateLobbyCode();
-            Lobby newLobby = new Lobby(lobbyCode, creator, lobbySettings.Language);
+            Lobby newLobby = new Lobby(
+                code: lobbyCode,
+                creator: creator,
+                language: lobbySettings.Language,
+                privacy: lobbySettings.LobbyPrivacy,
+                gameMode: lobbySettings.GameMode,
+                roomSize: lobbySettings.NumberOfPlayers);
 
             lobbies.Add(newLobby.Code, newLobby);
             Callback.JoinLobby(newLobby);
@@ -27,15 +34,17 @@ namespace BoggleService.Services
 
         public void SearchPublicLobbies()
         {
-            var query = lobbies.Where(
-                lobby => lobby.Value.Privacy.Equals(Public)).ToList();
-            List<Lobby> publicLobbies = new List<Lobby>();
-            foreach (var publicLobby in query)
+            var query = lobbies.Where(lobby => lobby.Value.Privacy.Equals(Public)).ToList();
+            PublicLobbyPreviewDTO[] publicLobbiesDTOs = new PublicLobbyPreviewDTO[query.Count];
+
+            int lobbyIndex = 0;
+            foreach (var lobby in query)
             {
-                publicLobbies.Add(publicLobby.Value);
+                publicLobbiesDTOs[lobbyIndex] = ManualMapper.CreatePublicLobbyPreviewDTO(lobby.Value);
+                lobbyIndex++;
             }
 
-            Callback.DisplayPublicLobbies(publicLobbies);
+            Callback.DisplayPublicLobbies(publicLobbiesDTOs);
         }
 
         public void UpdatePublicLobbies()
@@ -43,9 +52,12 @@ namespace BoggleService.Services
             throw new NotImplementedException();
         }
 
-        public void JoinPrivateLobbie(string userName, string lobbyCode)
+        public void JoinLobbyByCode(string userName, string lobbyCode)
         {
-            throw new NotImplementedException();
+            Lobby lobby = lobbies.Values.Where(lobbyAux => lobbyAux.Code.Equals(lobbyCode)).FirstOrDefault();
+            Player player = new Player();
+            lobby.Players.Add(GameService.GetPlayer(userName, player));
+            Callback.JoinLobby(lobby);
         }
 
         private string GenerateLobbyCode()

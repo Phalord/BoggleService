@@ -34,7 +34,7 @@ namespace BoggleService.Contracts
         void UpdatePublicLobbies();
 
         [OperationContract(IsOneWay = true)]
-        void JoinPrivateLobbie(string userName, string lobbyCode);
+        void JoinLobbyByCode(string userName, string lobbyCode);
 
         #endregion
     }
@@ -55,6 +55,6 @@ namespace BoggleService.Contracts
         void JoinLobby(Lobby lobby);
 
         [OperationContract]
-        void DisplayPublicLobbies(List<Lobby> publicLobbies);
+        void DisplayPublicLobbies(PublicLobbyPreviewDTO[] publicLobbies);
     }
 }

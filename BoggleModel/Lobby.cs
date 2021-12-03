@@ -9,15 +9,18 @@ namespace BoggleModel
         private const string Public = "Public";
         private const string Private = "Private";
 
-        public Lobby(string code, Player creator, string language)
+        public Lobby(
+            string code, Player creator,
+            string language, string privacy,
+            string gameMode, int roomSize)
         {
             Code = code;
-            Size = 8;
-            Privacy = Private;
+            Size = roomSize;
+            Privacy = privacy;
             MessageHistory = new List<Message>();
             Players = new List<Player>();
             Players.Add(creator);
-            GameMatch = new Match(language);
+            GameMatch = new Match(language, gameMode);
         }
 
         [DataMember]
