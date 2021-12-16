@@ -21,11 +21,9 @@ namespace BoggleModel.DataAccess
                         Nickname = query.Nickname,
                         Nationality = query.Nationality
                     };
-
                     return player;
                 }
             }
-
             return player;
         }
     }

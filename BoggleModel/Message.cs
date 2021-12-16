@@ -6,9 +6,10 @@ namespace BoggleModel
     [DataContract]
     public class Message
     {
-        public Message(string body)
+        public Message(string body, string sender)
         {
             Body = body;
+            Sender = sender;
             TimeSent = DateTime.Now;
         }
 
@@ -19,7 +20,7 @@ namespace BoggleModel
         public DateTime TimeSent { get; set; }
 
         [DataMember]
-        public Player Sender { get; set; }
+        public string Sender { get; set; }
 
         public void ChangeBody(string newBody)
         {

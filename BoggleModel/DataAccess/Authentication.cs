@@ -14,7 +14,7 @@ namespace BoggleModel.DataAccess
                     .Where(account => account.UserName.Equals(userName))
                     .FirstOrDefault();
 
-                if (query != null)
+                if (!(query is null))
                 {
                     userAccount = new UserAccount(
                         query.UserName, query.Email,
@@ -50,7 +50,7 @@ namespace BoggleModel.DataAccess
             {
                 var query = database.UserAccounts
                     .FirstOrDefault(account => account.Email == email);
-                if (query != null)
+                if (!(query is null))
                 {
                     userAccount = new UserAccount(
                         query.UserName, query.Email,
@@ -69,7 +69,7 @@ namespace BoggleModel.DataAccess
                     .Where(player => player.Account.Email.Equals(email))
                     .FirstOrDefault();
                 
-                if (query != null)
+                if (!(query is null))
                 {
                     query.Account.IsVerified = true;
                     database.SaveChanges();
@@ -84,7 +84,7 @@ namespace BoggleModel.DataAccess
                 var query = database.UserAccounts.FirstOrDefault(
                     account => account.Player.FriendCode == friendCode);
 
-                if (query != null)
+                if (!(query is null))
                 {
                     userAccount = new UserAccount(
                         query.UserName, query.Email,

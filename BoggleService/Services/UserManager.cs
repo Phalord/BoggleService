@@ -17,7 +17,10 @@ namespace BoggleService.Services
     public partial class BoggleServices : IBoggleServiceContracts
     {
         private static readonly Random random = new Random();
-        private readonly Dictionary<string, string> usersToValidate = new Dictionary<string, string>();
+        private readonly Dictionary<string, string>
+            usersToValidate = new Dictionary<string, string>();
+        private readonly Dictionary<string, IBoggleServicesCallback>
+            playersConnected = new Dictionary<string, IBoggleServicesCallback>();
 
         #region Constants
         private const int friendCodeSize = 10;
@@ -33,6 +36,7 @@ namespace BoggleService.Services
         private const string emailNotFound = "EmailNotFound";
         private const string wrongValidationCode = "WrongValidationCode";
         private const string emailValidated = "EmailValidated";
+        private const string playerLogged = "PlayerAlreadyLogged";
         #endregion
 
 
@@ -73,19 +77,27 @@ namespace BoggleService.Services
             AccountDTO accountDTO = null;
 
             string accessStatus;
-            if (userAccount != null)
+            if (!(userAccount is null))
             {
                 if (userAccount.IsVerified)
                 {
-                    if (BCrypt.Net.BCrypt.Verify(password, userAccount.Password))
+                    if(!UserAlreadyLoggedIn(userAccount))
                     {
-                        accessStatus = accessGranted;
-                        accountDTO = ManualMapper
-                            .CreateAccountDTO(userAccount);
+                        if (BCrypt.Net.BCrypt.Verify(password, userAccount.Password))
+                        {
+                            accessStatus = accessGranted;
+                            playersConnected.Add(userAccount.UserName, Callback);
+                            accountDTO = ManualMapper
+                                .CreateAccountDTO(userAccount);
+                        }
+                        else
+                        {
+                            accessStatus = wrongPassword;
+                        }
                     }
                     else
                     {
-                        accessStatus = wrongPassword;
+                        accessStatus = playerLogged;
                     }
                 }
                 else
@@ -114,6 +126,7 @@ namespace BoggleService.Services
                     Authentication.ValidateAccountEmail(email);
                     UserAccount userAccount = null;
                     userAccount = Authentication.GetUserAccountByEmail(email, userAccount);
+                    playersConnected.Add(userAccount.UserName, Callback);
                     accountDTO = ManualMapper.CreateAccountDTO(userAccount);
                     validationStatus = emailValidated;
                     Console.WriteLine("Email {0} verified.", email);
@@ -131,6 +144,11 @@ namespace BoggleService.Services
 
 
         #region Local Methods
+
+        private bool UserAlreadyLoggedIn(UserAccount userAccount)
+        {
+            return playersConnected.ContainsKey(userAccount.UserName);
+        }
 
         private bool IsUserNameRegistered(string userName)
         {

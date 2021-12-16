@@ -1,6 +1,5 @@
 ﻿using BoggleModel;
 using BoggleModel.DataTransfer.Dtos;
-using System.Collections.Generic;
 using System.ServiceModel;
 
 namespace BoggleService.Contracts
@@ -36,6 +35,9 @@ namespace BoggleService.Contracts
         [OperationContract(IsOneWay = true)]
         void JoinLobbyByCode(string userName, string lobbyCode);
 
+        [OperationContract(IsOneWay = true)]
+        void SendMessage(Lobby lobby, string body, string sender);
+
         #endregion
     }
 
@@ -56,5 +58,14 @@ namespace BoggleService.Contracts
 
         [OperationContract]
         void DisplayPublicLobbies(PublicLobbyPreviewDTO[] publicLobbies);
+
+        [OperationContract]
+        void RefreshPublicLobbies(PublicLobbyPreviewDTO[] publicLobbies);
+
+        [OperationContract]
+        void UpdateLobby(Lobby lobby);
+
+        [OperationContract]
+        void DeliverMessage(Message message);
     }
 }
