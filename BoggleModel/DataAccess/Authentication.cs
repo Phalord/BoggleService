@@ -43,9 +43,10 @@ namespace BoggleModel.DataAccess
             }
         }
 
-        public static UserAccount GetUserAccountByEmail(
-            string email, UserAccount userAccount)
+        public static UserAccount GetUserAccountByEmail(string email)
         {
+            UserAccount userAccount = null;
+
             using (var database = new BoggleContext())
             {
                 var query = database.UserAccounts

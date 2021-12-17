@@ -14,13 +14,13 @@ namespace BoggleService.Services
     [ServiceBehavior(
         InstanceContextMode = InstanceContextMode.Single, 
         ConcurrencyMode = ConcurrencyMode.Multiple)]
-    public partial class BoggleServices : IBoggleServiceContracts
+    public partial class BoggleServices : IUserManagerContract
     {
         private static readonly Random random = new Random();
         private readonly Dictionary<string, string>
             usersToValidate = new Dictionary<string, string>();
-        private readonly Dictionary<string, IBoggleServicesCallback>
-            playersConnected = new Dictionary<string, IBoggleServicesCallback>();
+        private readonly Dictionary<string, IUserManagerCallback>
+            playersConnected = new Dictionary<string, IUserManagerCallback>();
 
         #region Constants
         private const int friendCodeSize = 10;
@@ -42,20 +42,19 @@ namespace BoggleService.Services
 
         public void CreateAccount(AccountDTO accountDTO)
         {
+            UserAccount newUser = new UserAccount();
             string accountCreationStatus;
 
             if (IsUserNameRegistered(accountDTO.UserName))
             {
                 accountCreationStatus = usernameRegistered;
-                Callback.AskForEmailValidation(accountCreationStatus, string.Empty);
             }
             else if (IsEmailRegistered(accountDTO.Email))
             {
                 accountCreationStatus = emailRegistered;
-                Callback.AskForEmailValidation(accountCreationStatus, string.Empty);
             } else
             {
-                UserAccount newUser = ManualMapper
+                newUser = ManualMapper
                     .CreateAccount(accountDTO, GenerateFriendCode);
 
                 Authentication.CreateAccount(newUser);
@@ -63,9 +62,16 @@ namespace BoggleService.Services
                 accountCreationStatus = accountCreated;
                 GenerateVerificationCode(newUser);
                 Console.WriteLine("User {0} created", newUser.UserName);
-                Callback.AskForEmailValidation(accountCreationStatus, newUser.Email);
             }
 
+            try
+            {
+                UserManagerCallback.AskForEmailValidation(accountCreationStatus, newUser.Email);
+            }
+            catch (CommunicationObjectAbortedException)
+            {
+                Console.WriteLine("Client out of reach...");
+            }
         }
 
         public void LogIn(string userName, string password)
@@ -86,7 +92,7 @@ namespace BoggleService.Services
                         if (BCrypt.Net.BCrypt.Verify(password, userAccount.Password))
                         {
                             accessStatus = accessGranted;
-                            playersConnected.Add(userAccount.UserName, Callback);
+                            playersConnected.Add(userAccount.UserName, UserManagerCallback);
                             accountDTO = ManualMapper
                                 .CreateAccountDTO(userAccount);
                         }
@@ -111,7 +117,15 @@ namespace BoggleService.Services
                 accessStatus = nonExistentUser;
             }
 
-            Callback.GrantAccess(accessStatus, accountDTO);
+            try
+            {
+                UserManagerCallback.GrantAccess(accessStatus, accountDTO);
+            }
+            catch (CommunicationObjectAbortedException)
+            {
+
+                playersConnected.Remove(userName);
+            }
         }
 
         public void ValidateEmail(string validationCode, string email)
@@ -124,9 +138,8 @@ namespace BoggleService.Services
                 if (usersToValidate[email].Equals(validationCode))
                 {
                     Authentication.ValidateAccountEmail(email);
-                    UserAccount userAccount = null;
-                    userAccount = Authentication.GetUserAccountByEmail(email, userAccount);
-                    playersConnected.Add(userAccount.UserName, Callback);
+                    UserAccount userAccount = Authentication.GetUserAccountByEmail(email);
+                    playersConnected.Add(userAccount.UserName, UserManagerCallback);
                     accountDTO = ManualMapper.CreateAccountDTO(userAccount);
                     validationStatus = emailValidated;
                     Console.WriteLine("Email {0} verified.", email);
@@ -139,7 +152,14 @@ namespace BoggleService.Services
                 validationStatus = emailNotFound;
             }
 
-            Callback.GrantValidation(validationStatus, accountDTO);
+            try
+            {
+                UserManagerCallback.GrantValidation(validationStatus, accountDTO);
+            }
+            catch (CommunicationObjectAbortedException)
+            {
+                playersConnected.Remove(accountDTO.UserName);
+            }
         }
 
 
@@ -165,8 +185,7 @@ namespace BoggleService.Services
 
         private bool IsEmailRegistered(string email)
         {
-            UserAccount userAccount = null;
-            userAccount = Authentication.GetUserAccountByEmail(email, userAccount);
+            UserAccount userAccount = Authentication.GetUserAccountByEmail(email);
 
             if (userAccount == null)
             {
@@ -230,12 +249,12 @@ namespace BoggleService.Services
         #endregion
 
 
-        IBoggleServicesCallback Callback
+        IUserManagerCallback UserManagerCallback
         {
             get
             {
                 return OperationContext.Current
-                    .GetCallbackChannel<IBoggleServicesCallback>();
+                    .GetCallbackChannel<IUserManagerCallback>();
             }
         }
     }

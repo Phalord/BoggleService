@@ -10,7 +10,7 @@ namespace BoggleModel
         private const string Private = "Private";
 
         public Lobby(
-            string code, Player creator,
+            string code, Player host,
             string language, string privacy,
             string gameMode, int roomSize)
         {
@@ -19,7 +19,8 @@ namespace BoggleModel
             Privacy = privacy;
             MessageHistory = new List<Message>();
             Players = new List<Player>();
-            Players.Add(creator);
+            Players.Add(host);
+            Host = host.UserName;
             GameMatch = new Match(language, gameMode);
         }
 
@@ -41,6 +42,9 @@ namespace BoggleModel
         [DataMember]
         public Match GameMatch { get; set; }
 
+        [DataMember]
+        public string Host { get; set; }
+
         public void ChangePrivacy()
         {
             if (Privacy.Equals(Public))
@@ -49,6 +53,14 @@ namespace BoggleModel
             } else
             {
                 Privacy = Public;
+            }
+        }
+
+        public void ChangeHost()
+        {
+            if (Players.Count > 0)
+            {
+                Host = Players[0].UserName;
             }
         }
     }
