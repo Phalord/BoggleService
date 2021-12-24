@@ -12,6 +12,9 @@ namespace BoggleService.Contracts
         void LogIn(string userName, string password);
 
         [OperationContract(IsOneWay = true)]
+        void LogOut(string username);
+
+        [OperationContract(IsOneWay = true)]
         void CreateAccount(AccountDTO accountDTO);
 
         [OperationContract(IsOneWay = true)]
@@ -23,6 +26,9 @@ namespace BoggleService.Contracts
     {
         [OperationContract]
         void GrantAccess(string accessStatus, AccountDTO accountInfoDTO);
+
+        [OperationContract]
+        void CloseSession();
 
         [OperationContract]
         void AskForEmailValidation(string accountCreationStatus, string userEmail);

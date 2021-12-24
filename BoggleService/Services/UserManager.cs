@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 
+[assembly: log4net.Config.XmlConfigurator(Watch = true)]
+
 namespace BoggleService.Services
 {
     [ServiceBehavior(
@@ -17,6 +19,7 @@ namespace BoggleService.Services
     public partial class BoggleServices : IUserManagerContract
     {
         private static readonly Random random = new Random();
+        private static readonly log4net.ILog log = LogHelper.GetLogger();
         private readonly Dictionary<string, string>
             usersToValidate = new Dictionary<string, string>();
         private readonly Dictionary<string, IUserManagerCallback>
@@ -36,9 +39,94 @@ namespace BoggleService.Services
         private const string emailNotFound = "EmailNotFound";
         private const string wrongValidationCode = "WrongValidationCode";
         private const string emailValidated = "EmailValidated";
-        private const string playerLogged = "PlayerAlreadyLogged";
         #endregion
 
+
+        public void LogIn(string userName, string password)
+        {
+            log.Info(string.Format("Attempting log in as {0}", userName));
+
+            UserAccount userAccount = Authentication.GetUserAccount(userName);
+            AccountDTO accountDTO = null;
+
+            string accessStatus;
+            if (!(userAccount is null))
+            {
+                accountDTO = ManualMapper
+                    .CreateAccountDTO(userAccount);
+                if (userAccount.IsVerified)
+                {
+                    if (!UserAlreadyLoggedIn(userAccount))
+                    {
+                        if (BCrypt.Net.BCrypt.Verify(password, userAccount.Password))
+                        {
+                            accessStatus = accessGranted;
+                            playersConnected.Add(userAccount.UserName, UserManagerCallback);
+                        }
+                        else
+                        {
+                            accessStatus = wrongPassword;
+                        }
+                    }
+                    else
+                    {
+                        accessStatus = accessGranted;
+                        try
+                        {
+                            playersConnected[userAccount.UserName].CloseSession();
+                        }
+                        catch (CommunicationObjectAbortedException communicationAborted)
+                        {
+                            log.Error(communicationAborted.Message, communicationAborted);
+                        }
+                        finally
+                        {
+                            playersConnected[userAccount.UserName] = UserManagerCallback;
+                        }
+                    }
+                }
+                else
+                {
+                    accessStatus = unverifiedEmail;
+                    GenerateVerificationCode(userAccount);
+                }
+            }
+            else
+            {
+                accessStatus = nonExistentUser;
+            }
+
+            try
+            {
+                UserManagerCallback.GrantAccess(accessStatus, accountDTO);
+            }
+            catch (CommunicationObjectAbortedException communicationAborted)
+            {
+                LogOut(accountDTO.UserName);
+                log.Error(communicationAborted.Message, communicationAborted);
+            }
+        }
+
+        public void LogOut(string userName)
+        {
+            if (userName.Length > 0)
+            {
+                log.Info(string.Format("{0} Logging out.", userName));
+
+                try
+                {
+                    playersConnected[userName].CloseSession();
+                }
+                catch (CommunicationObjectAbortedException communicationAborted)
+                {
+                    log.Error(communicationAborted.Message, communicationAborted);
+                }
+                finally
+                {
+                    playersConnected.Remove(userName);
+                }
+            }
+        }
 
         public void CreateAccount(AccountDTO accountDTO)
         {
@@ -61,70 +149,17 @@ namespace BoggleService.Services
 
                 accountCreationStatus = accountCreated;
                 GenerateVerificationCode(newUser);
-                Console.WriteLine("User {0} created", newUser.UserName);
+                log.Info(string.Format("User {0} created", newUser.UserName));
             }
 
             try
             {
                 UserManagerCallback.AskForEmailValidation(accountCreationStatus, newUser.Email);
             }
-            catch (CommunicationObjectAbortedException)
+            catch (CommunicationObjectAbortedException communicationAborted)
             {
-                Console.WriteLine("Client out of reach...");
-            }
-        }
-
-        public void LogIn(string userName, string password)
-        {
-            Console.WriteLine("Attempting log in as {0}", userName);
-
-            UserAccount userAccount = null;
-            userAccount = Authentication.GetUserAccount(userName, userAccount);
-            AccountDTO accountDTO = null;
-
-            string accessStatus;
-            if (!(userAccount is null))
-            {
-                if (userAccount.IsVerified)
-                {
-                    if(!UserAlreadyLoggedIn(userAccount))
-                    {
-                        if (BCrypt.Net.BCrypt.Verify(password, userAccount.Password))
-                        {
-                            accessStatus = accessGranted;
-                            playersConnected.Add(userAccount.UserName, UserManagerCallback);
-                            accountDTO = ManualMapper
-                                .CreateAccountDTO(userAccount);
-                        }
-                        else
-                        {
-                            accessStatus = wrongPassword;
-                        }
-                    }
-                    else
-                    {
-                        accessStatus = playerLogged;
-                    }
-                }
-                else
-                {
-                    accessStatus = unverifiedEmail;
-                    GenerateVerificationCode(userAccount);
-                }
-            }
-            else
-            {
-                accessStatus = nonExistentUser;
-            }
-
-            try
-            {
-                UserManagerCallback.GrantAccess(accessStatus, accountDTO);
-            }
-            catch (CommunicationObjectAbortedException)
-            {
-
-                playersConnected.Remove(userName);
+                LogOut(accountDTO.UserName);
+                log.Error(communicationAborted.Message, communicationAborted);
             }
         }
 
@@ -142,7 +177,7 @@ namespace BoggleService.Services
                     playersConnected.Add(userAccount.UserName, UserManagerCallback);
                     accountDTO = ManualMapper.CreateAccountDTO(userAccount);
                     validationStatus = emailValidated;
-                    Console.WriteLine("Email {0} verified.", email);
+                    log.Info(string.Format("Email {0} verified.", email));
                 } else
                 {
                     validationStatus = wrongValidationCode;
@@ -156,9 +191,10 @@ namespace BoggleService.Services
             {
                 UserManagerCallback.GrantValidation(validationStatus, accountDTO);
             }
-            catch (CommunicationObjectAbortedException)
+            catch (CommunicationObjectAbortedException communicationAborted)
             {
-                playersConnected.Remove(accountDTO.UserName);
+                LogOut(accountDTO.UserName);
+                log.Error(communicationAborted.Message, communicationAborted);
             }
         }
 
@@ -172,8 +208,7 @@ namespace BoggleService.Services
 
         private bool IsUserNameRegistered(string userName)
         {
-            UserAccount userAccount = null;
-            userAccount = Authentication.GetUserAccount(userName, userAccount);
+            UserAccount userAccount = Authentication.GetUserAccount(userName);
             
             if (userAccount == null)
             {

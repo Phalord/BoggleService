@@ -5,9 +5,9 @@ namespace BoggleModel.DataAccess
 {
     public abstract class Authentication
     {
-        public static UserAccount GetUserAccount(
-            string userName, UserAccount userAccount)
+        public static UserAccount GetUserAccount(string userName)
         {
+            UserAccount userAccount = null;
             using (var database = new BoggleContext())
             {
                 var query = database.UserAccounts

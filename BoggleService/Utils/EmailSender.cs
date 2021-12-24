@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BoggleService.Utils
 {
     internal class EmailSender
     {
         private readonly SmtpClient client;
-
+        private static readonly log4net.ILog log = LogHelper.GetLogger();
         private readonly string host = ConfigurationManager.AppSettings["SmtpServer"];
         private readonly int port = Convert.ToInt32(ConfigurationManager.AppSettings["Port"]);
         private readonly string addressFrom = ConfigurationManager.AppSettings["AddressFrom"];
@@ -20,6 +17,7 @@ namespace BoggleService.Utils
 
         public EmailSender(string addressTo)
         {
+            log.Debug("Starting email sender");
             this.addressTo = addressTo;
             client = new SmtpClient(host, port)
             {
@@ -43,8 +41,15 @@ namespace BoggleService.Utils
                 SubjectEncoding = Encoding.UTF8,
                 BodyEncoding = Encoding.UTF8
             };
-
-            client.Send(mail);
+            try
+            {
+                client.Send(mail);
+                log.Info("Email sent");
+            }
+            catch (SmtpException smtpException)
+            {
+                log.Error(smtpException.Message, smtpException);
+            }
         }
     }
 }
