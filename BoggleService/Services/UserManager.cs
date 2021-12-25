@@ -123,9 +123,21 @@ namespace BoggleService.Services
                 }
                 finally
                 {
+                    if (playersInLobby.ContainsKey(userName))
+                    {
+                        string lobbyCode = GetLobbyCodeByPlayerInLobby(userName);
+                        ExitLobby(userName, lobbyCode);
+                    }
                     playersConnected.Remove(userName);
                 }
             }
+        }
+
+        private string GetLobbyCodeByPlayerInLobby(string userName)
+        {
+            return lobbies.Where(lobby => lobby.Value.Players.Contains(
+                lobby.Value.Players.FirstOrDefault(player => 
+                player.UserName.Equals(userName)))).FirstOrDefault().Key;
         }
 
         public void CreateAccount(AccountDTO accountDTO)

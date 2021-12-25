@@ -65,29 +65,12 @@ namespace BoggleService.Services
             UpdateLobbyOnClients(lobby);
         }
 
-        public void SendMessage(Lobby lobby, string message, string sender)
+        public void SendMessage(string lobbyCode, string message, string sender)
         {
-            Dictionary<string, ILobbyManagerCallback> playersInLobby = GetPlayersInLobby(lobby);
             Message newMessage = new Message(message, sender);
 
-            foreach (var playerInLobby in playersInLobby)
-            {
-                try
-                {
-                    lobby.MessageHistory.Add(newMessage);
-                }
-                catch (CommunicationObjectAbortedException)
-                {
-                    lobby.Players.Remove(lobby.Players.FirstOrDefault(
-                        player => player.UserName.Equals(playerInLobby.Key)));
-                    playersConnected.Remove(playerInLobby.Key);
-                }
-                finally
-                {
-                    lobbies[lobby.Code] = lobby;
-                }
-            }
-            UpdateLobbyOnClients(lobby);
+            lobbies[lobbyCode].MessageHistory.Add(newMessage);
+            UpdateLobbyOnClients(lobbies[lobbyCode]);
         }
 
         public void SendInvite(Lobby lobby, string sender, string receiver)
@@ -123,8 +106,7 @@ namespace BoggleService.Services
             }
         }
 
-        private Dictionary<string, ILobbyManagerCallback> GetPlayersInLobby(
-            Lobby lobby)
+        private Dictionary<string, ILobbyManagerCallback> GetPlayersInLobby(Lobby lobby)
         {
             Dictionary<string, ILobbyManagerCallback> playersInLobbyAux =
                    new Dictionary<string, ILobbyManagerCallback>();

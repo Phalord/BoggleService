@@ -20,7 +20,7 @@ namespace BoggleService.Contracts
         void ExitLobby(string userName, string lobbyCode);
 
         [OperationContract(IsOneWay = true)]
-        void SendMessage(Lobby lobby, string body, string sender);
+        void SendMessage(string lobbyCode, string body, string sender);
 
         [OperationContract(IsOneWay = true)]
         void SendInvite(Lobby lobby, string sender, string receiver);
