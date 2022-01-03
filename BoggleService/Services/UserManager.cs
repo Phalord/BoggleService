@@ -58,6 +58,11 @@ namespace BoggleService.Services
                 {
                     if (!UserAlreadyLoggedIn(userAccount))
                     {
+                        if (playersInLobby.ContainsKey(userName))
+                        {
+                            string lobbyCode = GetLobbyCodeByPlayerInLobby(userName);
+                            ExitLobby(userName, lobbyCode);
+                        }
                         if (BCrypt.Net.BCrypt.Verify(password, userAccount.Password))
                         {
                             accessStatus = accessGranted;
@@ -71,6 +76,10 @@ namespace BoggleService.Services
                     else
                     {
                         accessStatus = accessGranted;
+                        if (playersInLobby.ContainsKey(userName))
+                        {
+                            ExitLobby(userName, GetLobbyCodeByPlayerInLobby(userName));
+                        }
                         try
                         {
                             playersConnected[userAccount.UserName].CloseSession();
@@ -109,7 +118,7 @@ namespace BoggleService.Services
 
         public void LogOut(string userName)
         {
-            if (userName.Length > 0)
+            if (userName.Length > 0 && playersConnected.ContainsKey(userName))
             {
                 log.Info(string.Format("{0} Logging out.", userName));
 
@@ -131,13 +140,6 @@ namespace BoggleService.Services
                     playersConnected.Remove(userName);
                 }
             }
-        }
-
-        private string GetLobbyCodeByPlayerInLobby(string userName)
-        {
-            return lobbies.Where(lobby => lobby.Value.Players.Contains(
-                lobby.Value.Players.FirstOrDefault(player => 
-                player.UserName.Equals(userName)))).FirstOrDefault().Key;
         }
 
         public void CreateAccount(AccountDTO accountDTO)
@@ -291,6 +293,13 @@ namespace BoggleService.Services
             }
 
             return true;
+        }
+
+        private string GetLobbyCodeByPlayerInLobby(string userName)
+        {
+            return lobbies.Where(lobby => lobby.Value.Players.Contains(
+                lobby.Value.Players.FirstOrDefault(player =>
+                player.UserName.Equals(userName)))).FirstOrDefault().Key;
         }
 
         #endregion

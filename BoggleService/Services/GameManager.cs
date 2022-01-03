@@ -20,42 +20,52 @@ namespace BoggleService.Services
 
         public void CreateLobby(LobbySettingsDTO lobbySettings)
         {
-            Player creator = null;
-            creator = GameService.GetPlayer(lobbySettings.CreatorUserName, creator);
-            string lobbyCode = GenerateLobbyCode();
-            Lobby newLobby = new Lobby(
-                code: lobbyCode,
-                host: creator,
-                language: lobbySettings.Language,
-                privacy: lobbySettings.LobbyPrivacy,
-                gameMode: lobbySettings.GameMode,
-                roomSize: lobbySettings.NumberOfPlayers);
+            if (playersConnected.ContainsKey(lobbySettings.CreatorUserName))
+            {
+                Player creator = null;
+                creator = GameService.GetPlayer(lobbySettings.CreatorUserName, creator);
+                string lobbyCode = GenerateLobbyCode();
+                Lobby newLobby = new Lobby(
+                    code: lobbyCode,
+                    host: creator,
+                    language: lobbySettings.Language,
+                    privacy: lobbySettings.LobbyPrivacy,
+                    gameMode: lobbySettings.GameMode,
+                    roomSize: lobbySettings.NumberOfPlayers);
 
-            try
-            {
-                GameManagerCallback.GrantAccessToJoinLobby(newLobby);
-                lobbies.Add(newLobby.Code, newLobby);
-            }
-            catch (CommunicationObjectAbortedException)
-            {
-                playersConnected.Remove(creator.UserName);
+                try
+                {
+                    GameManagerCallback.GrantAccessToJoinLobby(newLobby);
+                    lobbies.Add(newLobby.Code, newLobby);
+                    log.Info(string.Format(
+                        "Lobby with code {0} created", newLobby.Code));
+                }
+                catch (CommunicationObjectAbortedException)
+                {
+                    playersConnected.Remove(creator.UserName);
+                }
             }
         }
 
         public void AskToJoinLobby(string userName, string lobbyCode)
         {
-            if (playersInLobby.Keys.Contains(userName))
+            if (playersConnected.ContainsKey(userName))
             {
-                playersInLobby.Remove(userName);
-            }
+                if (playersInLobby.Keys.Contains(userName))
+                {
+                    playersInLobby.Remove(userName);
+                }
 
-            Lobby lobby = lobbies.Values.Where(
-                lobbyAux => lobbyAux.Code.Equals(lobbyCode)).FirstOrDefault();
-            if (lobby.Players.Count.Equals(lobby.Size))
-            {
-                lobby = null;
+                Lobby lobby = lobbies.Values.Where(
+                    lobbyAux => lobbyAux.Code.Equals(lobbyCode)).FirstOrDefault();
+                if (lobby.Players.Count.Equals(lobby.Size) ||
+                    lobby.Players.Count.Equals(0))
+                {
+                    lobbies.Remove(lobby.Code);
+                    lobby = null;
+                }
+                GameManagerCallback.GrantAccessToJoinLobby(lobby); 
             }
-            GameManagerCallback.GrantAccessToJoinLobby(lobby);
         }
 
         public void SearchPublicLobbies()
@@ -66,8 +76,11 @@ namespace BoggleService.Services
             int lobbyIndex = 0;
             foreach (var lobby in query)
             {
-                publicLobbiesDTOs[lobbyIndex] = ManualMapper.CreatePublicLobbyPreviewDTO(lobby.Value);
-                lobbyIndex++;
+                if (lobby.Value.Players.Count > 0)
+                {
+                    publicLobbiesDTOs[lobbyIndex] = ManualMapper.CreatePublicLobbyPreviewDTO(lobby.Value);
+                    lobbyIndex++; 
+                }
             }
 
             GameManagerCallback.DisplayPublicLobbies(publicLobbiesDTOs);

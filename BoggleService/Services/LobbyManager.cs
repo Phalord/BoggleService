@@ -26,12 +26,14 @@ namespace BoggleService.Services
             if (!(lobby is null))
             {
                 Player player = GameService.GetPlayer(userName, new Player());
-                if (!PlayerIsCreator(player, lobby))
+                if (!IsPlayerHost(player, lobby))
                 {
                     lobby.Players.Add(player);
                 }
                 lobbies[lobby.Code] = lobby;
                 playersInLobby.Add(player.UserName, LobbyManagerCallback);
+                log.Info(string.Format(
+                    "Player {0} joined lobby with code {1}", userName, lobbyCode)); 
             }
 
             UpdateLobbyOnClients(lobby);
@@ -39,37 +41,41 @@ namespace BoggleService.Services
 
         public void ExitLobby(string userName, string lobbyCode)
         {
-            Lobby lobby = lobbies.Values.Where(
-                lobbyAux => lobbyAux.Code.Equals(lobbyCode)).FirstOrDefault();
-
-            if (!(lobby is null))
+            if (lobbyCode!= null &&
+                lobbies.ContainsKey(lobbyCode) &&
+                playersConnected.ContainsKey(userName))
             {
-                Player player = lobby.Players.FirstOrDefault(
+                Player player = lobbies[lobbyCode].Players.FirstOrDefault(
                     auxiliarPlayer => auxiliarPlayer.UserName.Equals(userName));
-                lobby.Players.Remove(player);
+                lobbies[lobbyCode].Players.Remove(player);
                 playersInLobby.Remove(player.UserName);
-                if (player.UserName.Equals(lobby.Host))
+                log.Info(string.Format(
+                    "Player {0} exited from lobby {1}", player.Nickname, lobbyCode));
+                if (lobbies[lobbyCode].Players.Count.Equals(0))
                 {
-                    lobby.ChangeHost();
-                }
-                if (lobby.Players.Count.Equals(0))
-                {
-                    lobbies.Remove(lobby.Code);
-                    lobby = null;
+                    lobbies.Remove(lobbyCode);
+                    log.Info(string.Format(
+                        "Lobby with code {0} deleted", lobbyCode));
+                    UpdateLobbyOnClients(null);
                 }
                 else
                 {
-                    lobbies[lobby.Code] = lobby;
+                    if (player.UserName.Equals(lobbies[lobbyCode].Host))
+                    {
+                        lobbies[lobbyCode].ChangeHost();
+                        log.Info(string.Format(
+                            "Host in Lobby {0} changed", lobbyCode));
+                    }
+                    UpdateLobbyOnClients(lobbies[lobbyCode]);
                 }
             }
-            UpdateLobbyOnClients(lobby);
         }
 
         public void SendMessage(string lobbyCode, string message, string sender)
         {
             Message newMessage = new Message(message, sender);
-
             lobbies[lobbyCode].MessageHistory.Add(newMessage);
+            log.Info(string.Format("Message sent in Lobby with code: {0}", lobbyCode));
             UpdateLobbyOnClients(lobbies[lobbyCode]);
         }
 
@@ -79,7 +85,7 @@ namespace BoggleService.Services
         }
 
         #region LocalMethods
-        private bool PlayerIsCreator(Player player, Lobby lobby)
+        private bool IsPlayerHost(Player player, Lobby lobby)
         {
             return lobby.Host.Equals(player.UserName);
         }
@@ -96,11 +102,10 @@ namespace BoggleService.Services
                     {
                         playerInLobby.Value.UpdateLobby(lobby);
                     }
-                    catch (CommunicationObjectAbortedException)
+                    catch (CommunicationObjectAbortedException communicationAborted)
                     {
-                        lobby.Players.Remove(lobby.Players.FirstOrDefault(
-                            player => player.UserName.Equals(playerInLobby.Key)));
-                        playersConnected.Remove(playerInLobby.Key);
+                        LogOut(playerInLobby.Key);
+                        log.Error(communicationAborted.Message, communicationAborted);
                     }
                 }
             }
