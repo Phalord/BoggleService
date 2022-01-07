@@ -18,12 +18,15 @@ namespace BoggleService.Services
         private const string Public = "Public";
         private const int lobbyCodeSize = 5;
 
+        /// <summary>
+        /// Creates a Lobby with some default settings and the ones given by the host.
+        /// </summary>
+        /// <param name="lobbySettings">Lobby settings given by the host</param>
         public void CreateLobby(LobbySettingsDTO lobbySettings)
         {
             if (playersConnected.ContainsKey(lobbySettings.CreatorUserName))
             {
-                Player creator = null;
-                creator = GameService.GetPlayer(lobbySettings.CreatorUserName, creator);
+                Player creator = GameService.GetPlayer(lobbySettings.CreatorUserName);
                 string lobbyCode = GenerateLobbyCode();
                 Lobby newLobby = new Lobby(
                     code: lobbyCode,
@@ -40,13 +43,20 @@ namespace BoggleService.Services
                     log.Info(string.Format(
                         "Lobby with code {0} created", newLobby.Code));
                 }
-                catch (CommunicationObjectAbortedException)
+                catch (CommunicationObjectAbortedException communicationAborted)
                 {
-                    playersConnected.Remove(creator.UserName);
+                    LogOut(creator.UserName);
+                    log.Error(communicationAborted.Message, communicationAborted);
                 }
             }
         }
 
+        /// <summary>
+        /// Validates if a player can join a lobby and if so,
+        /// gives the player permission to join the lobby.
+        /// </summary>
+        /// <param name="userName">User name corresponding to the player</param>
+        /// <param name="lobbyCode">Code given to identify the lobby</param>
         public void AskToJoinLobby(string userName, string lobbyCode)
         {
             if (playersConnected.ContainsKey(userName))
@@ -64,10 +74,23 @@ namespace BoggleService.Services
                     lobbies.Remove(lobby.Code);
                     lobby = null;
                 }
-                GameManagerCallback.GrantAccessToJoinLobby(lobby); 
+                try
+                {
+                    GameManagerCallback.GrantAccessToJoinLobby(lobby);
+                }
+                catch (CommunicationObjectAbortedException communicationAborted)
+                {
+                    LogOut(userName);
+                    log.Error(communicationAborted.Message, communicationAborted);
+                }
             }
         }
 
+        /// <summary>
+        /// Searches for the public lobbies in the existing lobbies
+        /// and returns it to the Client with the corresponding Callback.
+        /// This method is used to display the public lobbies.
+        /// </summary>
         public void SearchPublicLobbies()
         {
             var query = lobbies.Where(lobby => lobby.Value.Privacy.Equals(Public)).ToList();
@@ -83,9 +106,21 @@ namespace BoggleService.Services
                 }
             }
 
-            GameManagerCallback.DisplayPublicLobbies(publicLobbiesDTOs);
+            try
+            {
+                GameManagerCallback.DisplayPublicLobbies(publicLobbiesDTOs);
+            }
+            catch (CommunicationObjectAbortedException communicationAborted)
+            {
+                log.Error(communicationAborted.Message, communicationAborted);
+            }
         }
 
+        /// <summary>
+        /// Searches for the public lobbies in the existing lobbies
+        /// and returns it to the Client with the corresponding Callback.
+        /// This method is used to refresh the displayed public lobbies.
+        /// </summary>
         public void UpdatePublicLobbies()
         {
             var query = lobbies.Where(lobby => lobby.Value.Privacy.Equals(Public)).ToList();
@@ -94,11 +129,21 @@ namespace BoggleService.Services
             int lobbyIndex = 0;
             foreach (var lobby in query)
             {
-                publicLobbiesDTOs[lobbyIndex] = ManualMapper.CreatePublicLobbyPreviewDTO(lobby.Value);
-                lobbyIndex++;
+                if (lobby.Value.Players.Count > 0)
+                {
+                    publicLobbiesDTOs[lobbyIndex] = ManualMapper.CreatePublicLobbyPreviewDTO(lobby.Value);
+                    lobbyIndex++;
+                }
             }
 
-            GameManagerCallback.RefreshPublicLobbies(publicLobbiesDTOs);
+            try
+            {
+                GameManagerCallback.RefreshPublicLobbies(publicLobbiesDTOs);
+            }
+            catch (CommunicationObjectAbortedException communicationAborted)
+            {
+                log.Error(communicationAborted.Message, communicationAborted);
+            }
         }
 
         #region Local Methods

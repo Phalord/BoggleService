@@ -32,6 +32,37 @@ namespace BoggleModel.DataTransfer
             return accountDTO;
         }
 
+        public static PlayerAnalyticsDTO CreatePlayerAnalyticDTO(PerformanceRecord performanceRecord)
+        {
+            PlayerAnalyticsDTO playerAnalyticsDTO = new PlayerAnalyticsDTO()
+            {
+                Nickname = performanceRecord.Nickname,
+                WordsFound = performanceRecord.WordsFound,
+                DroppedMatches = performanceRecord.DroppedMatches,
+                WonMatches = performanceRecord.WonMatches,
+                LostMatches = performanceRecord.LostMatches,
+                PlayedMatches = performanceRecord.PlayedMatches,
+                HighestScore = performanceRecord.HighestScore,
+                TotalScore = performanceRecord.TotalScore
+            };
+
+            return playerAnalyticsDTO;
+        }
+
+        public static PlayerOverviewDTO CreatePlayerOverviewDTO(PerformanceRecord performanceRecord)
+        {
+            PlayerOverviewDTO playerOverviewDTO = new PlayerOverviewDTO()
+            {
+                UserName = performanceRecord.PlayerPerformance.UserName,
+                Nickname = performanceRecord.Nickname,
+                Victories = performanceRecord.WonMatches,
+                GamesPlayed = performanceRecord.PlayedMatches,
+                HighestScore = performanceRecord.HighestScore,
+                TotalScore = performanceRecord.TotalScore
+            };
+            return playerOverviewDTO;
+        }
+
         public static UserAccount CreateAccount(
             AccountDTO accountDTO, Func<string> generateFriendcode)
         {
@@ -53,6 +84,19 @@ namespace BoggleModel.DataTransfer
             };
 
             return publicLobbyPreviewDTO;
+        }
+
+        public static TopPlayerDTO CreateTopPlayerDTO(PerformanceRecord performanceRecord)
+        {
+            TopPlayerDTO topPlayerDTO = new TopPlayerDTO()
+            {
+                PlayerNickname = performanceRecord.Nickname,
+                PlayedMatches = performanceRecord.PlayedMatches,
+                WonMatches = performanceRecord.WonMatches,
+                TotalScore = performanceRecord.TotalScore
+            };
+
+            return topPlayerDTO;
         }
     }
 }

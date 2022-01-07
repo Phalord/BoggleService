@@ -1,8 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.Serialization;
-
-namespace BoggleModel
+﻿namespace BoggleModel
 {
     public class PerformanceRecord
     {
@@ -15,23 +11,24 @@ namespace BoggleModel
             PlayedMatches = 0;
             HighestScore = 0;
             TotalScore = 0;
+            Nickname = "";
         }
 
-        public int WordsFound { get; private set; }
+        public int WordsFound { get; set; }
 
-        public int DroppedMatches { get; private set; }
+        public int DroppedMatches { get; set; }
 
-        public int WonMatches { get; private set; }
+        public int WonMatches { get; set; }
 
-        public int LostMatches { get; private set; }
+        public int LostMatches { get; set; }
 
-        public int PlayedMatches { get; private set; }
+        public int PlayedMatches { get; set; }
 
-        public int HighestScore { get; private set; }
+        public int HighestScore { get; set; }
 
-        public int TotalScore { get; private set; }
+        public int TotalScore { get; set; }
 
-        public string Username { get; set; }
+        public string Nickname { get; set; }
 
         public virtual Player PlayerPerformance { get; set; }
 

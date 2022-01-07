@@ -13,11 +13,23 @@ namespace BoggleService.Services
         private readonly Dictionary<string, ILobbyManagerCallback> playersInLobby =
             new Dictionary<string, ILobbyManagerCallback>();
 
+        /// <summary>
+        /// Validates if there are changes in the
+        /// lobby's match settings and if so,
+        /// updates the lobby.
+        /// </summary>
+        /// <param name="lobby"></param>
         public void ChangeMatchSettings(Lobby lobby)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Joins player to a given lobby corresponding
+        /// to the provided lobby code.
+        /// </summary>
+        /// <param name="userName">User name corresponding to the player</param>
+        /// <param name="lobbyCode">Code given to identify the lobby</param>
         public void JoinLobby(string userName, string lobbyCode)
         {
             Lobby lobby = lobbies.Values.Where(
@@ -25,7 +37,7 @@ namespace BoggleService.Services
 
             if (!(lobby is null))
             {
-                Player player = GameService.GetPlayer(userName, new Player());
+                Player player = GameService.GetPlayer(userName);
                 if (!IsPlayerHost(player, lobby))
                 {
                     lobby.Players.Add(player);
@@ -39,6 +51,11 @@ namespace BoggleService.Services
             UpdateLobbyOnClients(lobby);
         }
 
+        /// <summary>
+        /// Kicks a player out of a lobby.
+        /// </summary>
+        /// <param name="userName">User name corresponding to the player</param>
+        /// <param name="lobbyCode">Code given to identify the lobby</param>
         public void ExitLobby(string userName, string lobbyCode)
         {
             if (lobbyCode!= null &&
@@ -71,6 +88,13 @@ namespace BoggleService.Services
             }
         }
 
+        /// <summary>
+        /// Adds a message to the message history of a given lobby
+        /// and sends it to all players in the same lobby.
+        /// </summary>
+        /// <param name="lobbyCode">Code given to identify the lobby</param>
+        /// <param name="message">Text (body) of the message to send between clients</param>
+        /// <param name="sender">Nickname of the player sending the message</param>
         public void SendMessage(string lobbyCode, string message, string sender)
         {
             Message newMessage = new Message(message, sender);
@@ -79,6 +103,12 @@ namespace BoggleService.Services
             UpdateLobbyOnClients(lobbies[lobbyCode]);
         }
 
+        /// <summary>
+        /// Sends an invitation to a player join to a lobby
+        /// </summary>
+        /// <param name="lobbyCode">Code given to identify the lobby which the invitation comes from</param>
+        /// <param name="sender">Nickname of the player sending the invitation</param>
+        /// <param name="receiver">Username of the player to send the invitation</param>
         public void SendInvite(Lobby lobby, string sender, string receiver)
         {
             throw new NotImplementedException();

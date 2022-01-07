@@ -3,6 +3,10 @@ using System.ServiceModel;
 
 namespace BoggleService.Contracts
 {
+    /// <summary>
+    /// Contracts related to user management as account
+    /// creation, authentication or email validation.
+    /// </summary>
     [ServiceContract(
         CallbackContract = typeof(IUserManagerCallback),
         SessionMode = SessionMode.Required)]
@@ -21,6 +25,9 @@ namespace BoggleService.Contracts
         void ValidateEmail(string validationCode, string email);
     }
 
+    /// <summary>
+    /// Client callbacks related to the user manager service.
+    /// </summary>
     [ServiceContract]
     public interface IUserManagerCallback
     {

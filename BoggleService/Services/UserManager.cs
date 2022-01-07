@@ -41,7 +41,12 @@ namespace BoggleService.Services
         private const string emailValidated = "EmailValidated";
         #endregion
 
-
+        /// <summary>
+        /// If the user name and password matches the ones
+        /// of a registered player it gives access to the player.
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="password"></param>
         public void LogIn(string userName, string password)
         {
             log.Info(string.Format("Attempting log in as {0}", userName));
@@ -116,6 +121,11 @@ namespace BoggleService.Services
             }
         }
 
+        /// <summary>
+        /// Logs out the player from the service.
+        /// If the player's in a Lobby it gets removed.
+        /// </summary>
+        /// <param name="userName">Player's user name</param>
         public void LogOut(string userName)
         {
             if (userName.Length > 0 && playersConnected.ContainsKey(userName))
@@ -142,6 +152,11 @@ namespace BoggleService.Services
             }
         }
 
+        /// <summary>
+        /// Creates a new account with the info provided
+        /// if neither the username nor email are already registered.
+        /// </summary>
+        /// <param name="accountDTO">Data Transfer Object with needed information to create an account</param>
         public void CreateAccount(AccountDTO accountDTO)
         {
             UserAccount newUser = new UserAccount();
@@ -177,6 +192,12 @@ namespace BoggleService.Services
             }
         }
 
+        /// <summary>
+        /// Receives validation code to validate that
+        /// the email provided by the player is a working email.
+        /// </summary>
+        /// <param name="validationCode">Validation code sent to player's email</param>
+        /// <param name="email">Player's email to validate</param>
         public void ValidateEmail(string validationCode, string email)
         {
             AccountDTO accountDTO = null;

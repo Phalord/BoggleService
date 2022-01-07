@@ -151,7 +151,7 @@ namespace BoggleModel.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to B-U-O-A-E-I.
+        ///   Looks up a localized string similar to B-U-O-A-W-I.
         /// </summary>
         public static string dice4 {
             get {
@@ -178,7 +178,7 @@ namespace BoggleModel.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to M-I-B-N-E-E.
+        ///   Looks up a localized string similar to M-I-B-N-E-W.
         /// </summary>
         public static string dice7 {
             get {

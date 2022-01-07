@@ -62,8 +62,11 @@
     <Compile Include="DataAccess\GameService.cs" />
     <Compile Include="DataTransfer\Dtos\AccountDTO.cs" />
     <Compile Include="DataTransfer\Dtos\LobbySettingsDTO.cs" />
+    <Compile Include="DataTransfer\Dtos\PlayerAnalyticsDTO.cs" />
     <Compile Include="DataTransfer\Dtos\PlayerInfoDTO.cs" />
+    <Compile Include="DataTransfer\Dtos\PlayerOverviewDTO.cs" />
     <Compile Include="DataTransfer\Dtos\PublicLobbyPreviewDTO.cs" />
+    <Compile Include="DataTransfer\Dtos\TopPlayerDTO.cs" />
     <Compile Include="DataTransfer\ManualMapper.cs" />
     <Compile Include="FriendRequest.cs" />
     <Compile Include="Lobby.cs" />
