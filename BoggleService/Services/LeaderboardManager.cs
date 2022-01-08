@@ -22,7 +22,15 @@ namespace BoggleService.Services
                 topPlayerDTOs.Add(topPlayerDTO);
             }
 
-            LeaderboardManagerCallback.DisplayTopPlayers(topPlayerDTOs.ToArray());
+            try
+            {
+                LeaderboardManagerCallback.DisplayTopPlayers(topPlayerDTOs.ToArray());
+            }
+            catch (CommunicationObjectAbortedException communicationAborted)
+            {
+                LogOut(userName);
+                log.Error(communicationAborted.Message, communicationAborted);
+            }
         }
 
         ILeaderboardManagerCallback LeaderboardManagerCallback
